@@ -48,10 +48,15 @@ def get_ec2_hosts(hostname_tag='Name', name_is_fqdn=False):
 
 
 def get_zone_records(zone_id):
-    rrs = r53_client.list_resource_record_sets(HostedZoneId=zone_id)[
-        'ResourceRecordSets']
-    a_records = [r for r in rrs
-                 if r['Type'] == 'A']
+    a_records = []
+    rrs = r53_client.list_resource_record_sets(HostedZoneId=zone_id)
+    while True:
+        a_records += [r for r in rrs['ResourceRecordSets']
+                      if r['Type'] == 'A']
+        if not rrs['IsTruncated']:
+            break
+        rrs = r53_client.list_resource_record_sets(HostedZoneId=zone_id, StartRecordName=rrs['NextRecordName'])
+
     return set(HostIP(r['Name'].split('.')[0], rr['Value'])
                for r in a_records
                for rr in r['ResourceRecords']),\
@@ -131,7 +136,7 @@ def apply_zone_changes(zone_id, changes, batch_size=100):
     for i in range(0, changes_size, batch_size):
         change_batch = changes[i:min(i+batch_size, changes_size)]
         print("changes[{}:{}]: {}".format(i, min(i+batch_size, changes_size), change_batch[0]))
-        # r53_client.change_resource_record_sets(HostedZoneId=zone_id, ChangeBatch={'Changes': change_batch})
+        r53_client.change_resource_record_sets(HostedZoneId=zone_id, ChangeBatch={'Changes': change_batch})
 
 
 def create_resource_record_set(hostname, zone_name, ip_addresses, ttl=300):
