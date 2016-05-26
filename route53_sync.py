@@ -33,7 +33,7 @@ def get_instance_tag(tag_name, instance, name_is_fqdn=False):
     raise KeyError(tag_name)
 
 
-def get_ec2_hosts(hostname_tag='Name', name_is_fqdn=False):
+def get_ec2_hosts(vpc_ids=[], hostname_tag='Name', name_is_fqdn=False, include_ec2=False):
     instances_it = ec2.instances.filter(
         Filters=[
             {'Name': 'tag-key',
@@ -44,7 +44,8 @@ def get_ec2_hosts(hostname_tag='Name', name_is_fqdn=False):
     )
     return set(HostIP(get_instance_tag(hostname_tag, i, name_is_fqdn),
                       i.private_ip_address)
-               for i in instances_it)
+               for i in instances_it
+               if i.vpc_id in vpc_ids or (include_ec2 and not i.vpc_id))
 
 
 def get_zone_records(zone_id):
@@ -65,8 +66,10 @@ def get_zone_records(zone_id):
 
 def get_tag_zone_diff(hostname_tag,
                       zone_id,
-                      name_is_fqdn):
-    hosts_from_tag = get_ec2_hosts(hostname_tag, name_is_fqdn)
+                      name_is_fqdn,
+                      include_ec2,
+                      vpc_ids):
+    hosts_from_tag = get_ec2_hosts(vpc_ids, hostname_tag, name_is_fqdn, include_ec2)
     hosts_from_zone, a_records = get_zone_records(zone_id)
     hosts_to_add = hosts_from_tag - hosts_from_zone
     hosts_to_prune = hosts_from_zone - hosts_from_tag
@@ -162,15 +165,19 @@ def create_resource_record_set(hostname, zone_name, ip_addresses, ttl=300):
 @click.command()
 @click.option('--tag', default='Name', help='The tag containing instance host names')
 @click.option('--fqdn/--no-fqdn', default=False, help='Is the name FQDN or the hostname portion only')
+@click.option('--include-ec2/--exclude-ec2', default=False)
+@click.option('--vpc-id', multiple=True)
 @click.argument('zone_id')
 @click.argument('zone_name')
 def sync_tag_with_zone(
         tag,
         fqdn,
         zone_id,
-        zone_name
+        zone_name,
+        include_ec2,
+        vpc_id
         ):
-    hosts_to_add, hosts_to_prune, a_records = get_tag_zone_diff(tag, zone_id, fqdn)
+    hosts_to_add, hosts_to_prune, a_records = get_tag_zone_diff(tag, zone_id, fqdn, include_ec2, vpc_id)
     zone_diff = create_merged_diff(hosts_to_add, hosts_to_prune)
     changes = create_zone_changes(zone_diff, a_records, zone_name)
     apply_zone_changes(zone_id, changes)
