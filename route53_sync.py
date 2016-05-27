@@ -177,6 +177,8 @@ def sync_tag_with_zone(
         include_ec2,
         vpc_id
         ):
+    if not zone_id.startswith("/hostedzone/"):
+        zone_id = "/hostedzone/{}".format(zone_id)
     hosts_to_add, hosts_to_prune, a_records = get_tag_zone_diff(tag, zone_id, fqdn, include_ec2, vpc_id)
     zone_diff = create_merged_diff(hosts_to_add, hosts_to_prune)
     changes = create_zone_changes(zone_diff, a_records, zone_name)
