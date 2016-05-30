@@ -5,4 +5,4 @@ python:
   - "pypy"
 install:
   - pip install -r dev-requirements.txt
-script: py.test --doctest-modules
+script: py.test ec2_route53_sync/utils --doctest-modules
