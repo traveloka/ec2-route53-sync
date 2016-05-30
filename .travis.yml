@@ -9,7 +9,8 @@ install:
 script:
   - py.test ec2_route53_sync/utils --cov=ec2_route53_sync/utils --doctest-modules
 after_success:
-  - if [[ $ENV == python=3.* ]]; then
+  - if [[ $ENV == python=3.5 ]];
+    then
       coveralls;
     fi
 
