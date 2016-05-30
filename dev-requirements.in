@@ -2,3 +2,4 @@
 ipython
 pip-tools
 pytest
+pytest-cov

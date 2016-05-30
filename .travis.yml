@@ -5,4 +5,9 @@ python:
   - "pypy"
 install:
   - pip install -r dev-requirements.txt
-script: py.test ec2_route53_sync/utils --doctest-modules
+  - pip install coveralls
+script:
+  - py.test ec2_route53_sync/utils --cov=ec2_route53_sync/utils --doctest-modules
+after_success:
+  - coveralls
+
