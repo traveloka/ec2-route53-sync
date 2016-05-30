@@ -4,6 +4,17 @@ from collections import defaultdict
 
 
 def apply_rr_diff(resource_records, ip_changes):
+    """ Given resource records and to_add / to_prune lists, combine to form new resource records
+
+    :param resource_records: a list of Value -> IP dictionaries
+    :param ip_changes: a dictionary of to_add and to_prune sets
+    :return: a list of Value -> IP dictionaries
+
+    >>> sorted(apply_rr_diff([{'Value': '1.2.3.4'}, {'Value': '5.6.7.8'}], \
+      {'to_add': set(['9.10.11.12', '13.14.15.16']),\
+       'to_prune': set(['5.6.7.8'])}), key=lambda rr: rr['Value'])
+    [{'Value': '1.2.3.4'}, {'Value': '13.14.15.16'}, {'Value': '9.10.11.12'}]
+    """
     ip_addresses = set(rec['Value'] for rec in resource_records)
     if 'to_add' in ip_changes:
         ip_addresses = ip_addresses.union(ip_changes['to_add'])
@@ -13,6 +24,16 @@ def apply_rr_diff(resource_records, ip_changes):
 
 
 def create_merged_diff(hosts_to_add, hosts_to_prune):
+    """ create a merged diff from lists of HostIPs to add and to prune
+
+    :param hosts_to_add:   list of HostIP objects
+    :param hosts_to_prune: list of HostIP objects
+    :return: a dictionary of host names to dictionaries of to_add and to_prune sets
+
+    >>> from ec2_route53_sync.models import HostIP
+    >>> dict(create_merged_diff([HostIP('foo', 'ip1'), HostIP('bar', 'ip2')], [HostIP('foo', 'ip3')]))
+    {'foo': {'to_add': {'ip1'}, 'to_prune': {'ip3'}}, 'bar': {'to_add': {'ip2'}}}
+    """
     d_to_add = defaultdict(set)
     d_to_prune = defaultdict(set)
     d_to_change = defaultdict(dict)
