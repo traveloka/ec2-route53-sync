@@ -31,8 +31,9 @@ def create_merged_diff(hosts_to_add, hosts_to_prune):
     :return: a dictionary of host names to dictionaries of to_add and to_prune sets
 
     >>> from ec2_route53_sync.models import HostIP
-    >>> dict(create_merged_diff([HostIP('foo', 'ip1'), HostIP('bar', 'ip2')], [HostIP('foo', 'ip3')]))
+    >>> dict(create_merged_diff([HostIP('foo', 'ip1'), HostIP('bar', 'ip2')], [HostIP('foo', 'ip3')])) == \
     {'foo': {'to_add': {'ip1'}, 'to_prune': {'ip3'}}, 'bar': {'to_add': {'ip2'}}}
+    True
     """
     d_to_add = defaultdict(set)
     d_to_prune = defaultdict(set)
