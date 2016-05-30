@@ -60,3 +60,12 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Editor temporary files
+\#*#
+.#*
+*~
+
+# IntelliJ IDEA / PyCharm
+/.idea/
+
