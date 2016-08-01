@@ -34,7 +34,8 @@ def get_zone_records(zone_id):
     rrs = r53_client.list_resource_record_sets(HostedZoneId=zone_id)
     while True:
         a_records += [r for r in rrs['ResourceRecordSets']
-                      if r['Type'] == 'A']
+                      if r['Type'] == 'A'
+                      and 'AliasTarget' not in r]
         if not rrs['IsTruncated']:
             break
         rrs = r53_client.list_resource_record_sets(HostedZoneId=zone_id, StartRecordName=rrs['NextRecordName'])
