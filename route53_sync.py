@@ -19,8 +19,8 @@ def get_ec2_hosts(vpc_ids=[], hostname_tag='Name', name_is_fqdn=False, include_e
         Filters=[
             {'Name': 'tag-key',
              'Values': [hostname_tag]},
-            {'Name': 'instance-state-code',
-             'Values': ['16']}
+            {'Name': 'instance-state-name',
+             'Values': ['running']}
         ]
     )
     return set(HostIP(get_instance_tag(hostname_tag, i, name_is_fqdn),
