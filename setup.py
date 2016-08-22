@@ -22,7 +22,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ec2-route53-sync=ec2_route53_sync:sync_tag_with_zone'
+            'ec2-route53-sync=ec2_route53_sync.cli:sync_tag_with_zone'
         ]
     }
 )

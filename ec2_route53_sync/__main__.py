@@ -1,4 +1,4 @@
-from . import (
+from .cli import (
   sync_tag_with_zone,
   test
 )
