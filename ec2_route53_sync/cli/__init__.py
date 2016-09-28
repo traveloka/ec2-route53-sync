@@ -1,13 +1,10 @@
 import boto3
 import click
-from .models import (
-    HostIP,
-)
-from .utils import (
-    create_merged_diff,
-    create_zone_changes,
-    get_instance_tag,
-)
+
+from ec2_route53_sync.models import HostIP
+from ec2_route53_sync.utils import create_merged_diff
+from ec2_route53_sync.utils import create_zone_changes
+from ec2_route53_sync.utils import get_instance_tag
 
 ec2_client = boto3.client('ec2')
 r53_client = boto3.client('route53')
