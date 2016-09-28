@@ -35,7 +35,8 @@ def get_zone_records(zone_id):
                       and 'AliasTarget' not in r]
         if not rrs['IsTruncated']:
             break
-        rrs = r53_client.list_resource_record_sets(HostedZoneId=zone_id, StartRecordName=rrs['NextRecordName'])
+        rrs = r53_client.list_resource_record_sets(
+                HostedZoneId=zone_id, StartRecordName=rrs['NextRecordName'])
 
     return set(HostIP(r['Name'].split('.')[0], rr['Value'])
                for r in a_records
@@ -48,7 +49,8 @@ def get_tag_zone_diff(hostname_tag,
                       name_is_fqdn,
                       include_ec2,
                       vpc_ids):
-    hosts_from_tag = get_ec2_hosts(vpc_ids, hostname_tag, name_is_fqdn, include_ec2)
+    hosts_from_tag = get_ec2_hosts(
+            vpc_ids, hostname_tag, name_is_fqdn, include_ec2)
     hosts_from_zone, a_records = get_zone_records(zone_id)
     hosts_to_add = hosts_from_tag - hosts_from_zone
     hosts_to_prune = hosts_from_zone - hosts_from_tag
@@ -59,8 +61,10 @@ def apply_zone_changes(zone_id, changes, batch_size=100):
     changes_size = len(changes)
     for i in range(0, changes_size, batch_size):
         change_batch = changes[i:min(i+batch_size, changes_size)]
-        print("changes[{}:{}]: {}".format(i, min(i+batch_size, changes_size), change_batch[0]))
-        r53_client.change_resource_record_sets(HostedZoneId=zone_id, ChangeBatch={'Changes': change_batch})
+        print("changes[{}:{}]: {}".format(
+            i, min(i+batch_size, changes_size), change_batch[0]))
+        r53_client.change_resource_record_sets(
+                HostedZoneId=zone_id, ChangeBatch={'Changes': change_batch})
 
 
 @click.command()
